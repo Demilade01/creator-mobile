@@ -1,50 +1,87 @@
-# Welcome to your Expo app 👋
+# 8x Creator Mobile
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A polished creator submission flow built with **Expo + React Native + TypeScript**.
 
-## Get started
+---
 
-1. Install dependencies
+## Screens
 
-   ```bash
-   npm install
-   ```
+| Screen | Route | Description |
+|---|---|---|
+| Campaigns List | `/` | Stats header, skeleton loader, campaign cards with urgency deadline coloring |
+| Campaign Detail | `/campaign/[id]` | Brand brief, numbered instructions, example video thumbnails, Submit CTA |
+| Submit Video | `/campaign/[id]/submit` | URL input, TikTok/Instagram validation, success toast, saves to global state |
+| My Submissions | `/submissions` | Grouped by campaign, status chips (pending / approved / rejected) |
 
-2. Start the app
+---
 
-   ```bash
-   npx expo start
-   ```
+## Tech Stack
 
-In the output, you'll find options to open the app in a
+- **Expo SDK 54** + **Expo Router** (file-based routing)
+- **TypeScript** throughout — strict mode
+- **React Context** (`SubmissionsContext`) for global submissions state — no Redux
+- **StyleSheet** API for styling — no NativeWind
+- **Sora** via `@expo-google-fonts/sora`
+- Mocked data only — no backend, no auth, no API calls
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+---
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Project Structure
 
-## Get a fresh project
+```
+/app
+  _layout.tsx               ← Root layout: fonts, SubmissionsProvider, Stack
+  (tabs)/
+    _layout.tsx             ← Bottom tab navigator
+    index.tsx               ← Campaigns List screen
+    submissions.tsx         ← My Submissions screen
+  campaign/
+    [id].tsx                ← Campaign Detail screen
+    [id]/submit.tsx         ← Submit Video URL screen
 
-When you're ready, run:
-
-```bash
-npm run reset-project
+/src
+  types/index.ts            ← Campaign & Submission interfaces
+  data/campaigns.ts         ← 5 mock campaigns + 3 pre-seeded submissions
+  context/
+    SubmissionsContext.tsx  ← Global state + addSubmission action
+  components/
+    CampaignCard.tsx        ← Card with glow border, payout badge, deadline urgency
+    StatusChip.tsx          ← Pill chip: pending / approved / rejected
+    SkeletonCard.tsx        ← Animated shimmer placeholder
+    VideoThumbnail.tsx      ← Tappable thumbnail with play button overlay
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+---
 
-## Learn more
+## Design System
 
-To learn more about developing your project with Expo, look at the following resources:
+| Token | Value |
+|---|---|
+| Background | `#0A0A0F` |
+| Accent / CTA | `#00F5FF` (electric cyan) |
+| Approved | `#00E676` |
+| Pending | `#FFB800` |
+| Rejected / Urgent | `#FF4D4D` |
+| Font | Sora (400 · 500 · 600 · 700) |
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+---
 
-## Join the community
+## Getting Started
 
-Join our community of developers creating universal apps.
+```bash
+# Install dependencies
+npm install
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+# Start Metro
+npx expo start
+```
+
+Scan the QR code with **Expo Go** (iOS / Android) or press `w` for web.
+
+---
+
+## Mock Data
+
+- **5 campaigns**: Nike, Sephora, Spotify, GoPro, HelloFresh
+- **3 pre-seeded submissions**: one `approved`, one `rejected`, one `pending` — so the Submissions tab is never empty on first launch
+- Deadlines are set dynamically relative to `Date.now()` so urgency colors are always meaningful

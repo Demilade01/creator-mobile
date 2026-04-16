@@ -1,98 +1,115 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { useEffect, useState } from 'react';
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+import CampaignCard from '../../src/components/CampaignCard';
+import SkeletonCard from '../../src/components/SkeletonCard';
+import { CAMPAIGNS } from '../../src/data/campaigns';
+import { useSubmissions } from '../../src/context/SubmissionsContext';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+const SKELETON_COUNT = 4;
 
-export default function HomeScreen() {
+export default function CampaignsScreen() {
+  const [loading, setLoading] = useState(true);
+  const { submissions } = useSubmissions();
+
+  // Fake 300 ms loading delay
+  useEffect(() => {
+    const t = setTimeout(() => setLoading(false), 300);
+    return () => clearTimeout(t);
+  }, []);
+
+  const activeCampaigns = CAMPAIGNS.length;
+  const pendingEarnings = submissions
+    .filter((s) => s.status === 'pending')
+    .reduce((sum, s) => {
+      const camp = CAMPAIGNS.find((c) => c.id === s.campaignId);
+      return sum + (camp?.payout ?? 0);
+    }, 0);
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.content}
+      showsVerticalScrollIndicator={false}
+    >
+      {/* Stats header */}
+      <View style={styles.statsBar}>
+        <View style={styles.statItem}>
+          <Text style={styles.statValue}>{activeCampaigns}</Text>
+          <Text style={styles.statLabel}>Active campaigns</Text>
+        </View>
+        <View style={styles.statDivider} />
+        <View style={styles.statItem}>
+          <Text style={styles.statValue}>${pendingEarnings}</Text>
+          <Text style={styles.statLabel}>Pending earnings</Text>
+        </View>
+      </View>
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      <Text style={styles.sectionTitle}>Available Campaigns</Text>
+
+      {loading
+        ? Array.from({ length: SKELETON_COUNT }).map((_, i) => (
+            <SkeletonCard key={i} />
+          ))
+        : CAMPAIGNS.map((campaign) => (
+            <CampaignCard key={campaign.id} campaign={campaign} />
+          ))}
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  container: {
+    flex: 1,
+    backgroundColor: '#0A0A0F',
+  },
+  content: {
+    paddingTop: 8,
+    paddingBottom: 32,
+  },
+  statsBar: {
     flexDirection: 'row',
+    marginHorizontal: 16,
+    marginBottom: 24,
+    backgroundColor: '#0E0E1A',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 245, 255, 0.15)',
+    overflow: 'hidden',
+  },
+  statItem: {
+    flex: 1,
     alignItems: 'center',
-    gap: 8,
+    paddingVertical: 16,
+    gap: 4,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  statValue: {
+    color: '#00F5FF',
+    fontSize: 22,
+    fontFamily: 'Sora_700Bold',
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  statLabel: {
+    color: '#6B7280',
+    fontSize: 12,
+    fontFamily: 'Sora_400Regular',
+  },
+  statDivider: {
+    width: 1,
+    backgroundColor: 'rgba(0, 245, 255, 0.12)',
+    marginVertical: 12,
+  },
+  sectionTitle: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontFamily: 'Sora_600SemiBold',
+    marginHorizontal: 16,
+    marginBottom: 12,
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
+    opacity: 0.5,
   },
 });
