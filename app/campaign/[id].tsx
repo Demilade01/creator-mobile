@@ -1,14 +1,14 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React from 'react';
+import React, { useState } from 'react';
 import {
-  Alert,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import VideoPlayerModal from '../../src/components/VideoPlayerModal';
 import VideoThumbnail from '../../src/components/VideoThumbnail';
 import { CAMPAIGNS } from '../../src/data/campaigns';
 
@@ -16,6 +16,9 @@ export default function CampaignDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const campaign = CAMPAIGNS.find((c) => c.id === id);
+
+  const [videoModalVisible, setVideoModalVisible] = useState(false);
+  const [selectedVideoUrl, setSelectedVideoUrl] = useState('');
 
   if (!campaign) {
     return (
@@ -30,35 +33,42 @@ export default function CampaignDetailScreen() {
   const deadlineColor =
     daysLeft <= 1 ? '#FF4D4D' : daysLeft <= 3 ? '#FFB800' : '#00E676';
 
+  const handleExampleVideoPress = (idx: number) => {
+    const videoUrl = campaign.exampleVideoUrls[idx % campaign.exampleVideoUrls.length];
+    setSelectedVideoUrl(videoUrl);
+    setVideoModalVisible(true);
+  };
+
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.content}
-      showsVerticalScrollIndicator={false}
-    >
-      {/* Hero */}
-      <View style={styles.hero}>
-        <View style={styles.brandBadge}>
-          <Text style={styles.brandInitial}>{campaign.brand[0]}</Text>
-        </View>
-        <View style={styles.heroMeta}>
-          <Text style={styles.brandName}>{campaign.brand}</Text>
-          <View style={styles.heroRow}>
-            <View style={styles.categoryTag}>
-              <Text style={styles.categoryText}>{campaign.category}</Text>
-            </View>
-            <View style={styles.payoutBadge}>
-              <Text style={styles.payoutText}>${campaign.payout}/video</Text>
+    <>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Hero */}
+        <View style={styles.hero}>
+          <View style={styles.brandBadge}>
+            <Text style={styles.brandInitial}>{campaign.brand[0]}</Text>
+          </View>
+          <View style={styles.heroMeta}>
+            <Text style={styles.brandName}>{campaign.brand}</Text>
+            <View style={styles.heroRow}>
+              <View style={styles.categoryTag}>
+                <Text style={styles.categoryText}>{campaign.category}</Text>
+              </View>
+              <View style={styles.payoutBadge}>
+                <Text style={styles.payoutText}>${campaign.payout}/video</Text>
+              </View>
             </View>
           </View>
         </View>
-      </View>
 
-      {/* Deadline */}
-      <View style={[styles.deadlineBar, { borderColor: `${deadlineColor}33` }]}>
-        <Ionicons name="time-outline" size={15} color={deadlineColor} />
-        <Text style={[styles.deadlineText, { color: deadlineColor }]}>
-          {daysLeft <= 0
+        {/* Deadline */}
+        <View style={[styles.deadlineBar, { borderColor: `${deadlineColor}33` }]}>
+          <Ionicons name="time-outline" size={15} color={deadlineColor} />
+          <Text style={[styles.deadlineText, { color: deadlineColor }]}>
+            {daysLeft <= 0
             ? 'Deadline passed'
             : daysLeft === 1
             ? '1 day left — submit soon!'
@@ -99,9 +109,7 @@ export default function CampaignDetailScreen() {
             <VideoThumbnail
               key={idx}
               color={color}
-              onPress={() =>
-                Alert.alert('Example Video', 'This is a mocked example video thumbnail.')
-              }
+              onPress={() => handleExampleVideoPress(idx)}
             />
           ))}
         </ScrollView>
@@ -117,6 +125,14 @@ export default function CampaignDetailScreen() {
         <Text style={styles.ctaText}>Submit a Video</Text>
       </TouchableOpacity>
     </ScrollView>
+
+    <VideoPlayerModal
+      visible={videoModalVisible}
+      videoUrl={selectedVideoUrl}
+      title={`${campaign.brand} - Example Video`}
+      onClose={() => setVideoModalVisible(false)}
+    />
+    </>
   );
 }
 

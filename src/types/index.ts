@@ -10,6 +10,8 @@ export interface Campaign {
   instructions: string[];
   /** Hex colour strings used as placeholder thumbnail backgrounds */
   exampleThumbnails: string[];
+  /** Real example video URLs */
+  exampleVideoUrls: string[];
 }
 
 export interface Submission {

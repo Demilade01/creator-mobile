@@ -101,10 +101,10 @@ export default function SubmitScreen() {
       setSubmitting(false);
       setToastVisible(true);
 
-      // Navigate back after toast
+      // Navigate to Submissions tab after toast
       setTimeout(() => {
         setToastVisible(false);
-        router.dismissAll();
+        router.navigate('/(tabs)/submissions');
       }, 1800);
     }, 600);
   }

@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   ScrollView,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import VideoPlayerModal from '../../src/components/VideoPlayerModal';
 import StatusChip from '../../src/components/StatusChip';
 import { CAMPAIGNS } from '../../src/data/campaigns';
 import { useSubmissions } from '../../src/context/SubmissionsContext';
@@ -15,22 +18,31 @@ function truncateUrl(url: string, maxLen = 40): string {
   return url.slice(0, maxLen) + '…';
 }
 
-function SubmissionRow({ submission }: { submission: Submission }) {
+function SubmissionRow({ submission, onPlayPress }: { submission: Submission; onPlayPress: () => void }) {
   const campaign = CAMPAIGNS.find((c) => c.id === submission.campaignId);
 
   return (
     <View style={styles.submissionRow}>
-      <View style={styles.submissionInfo}>
-        <Text style={styles.campaignName}>{campaign?.brand ?? 'Unknown'}</Text>
-        <Text style={styles.urlText}>{truncateUrl(submission.url)}</Text>
-        <Text style={styles.dateText}>
-          {new Date(submission.submittedAt).toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric',
-          })}
-        </Text>
-      </View>
+      <TouchableOpacity
+        activeOpacity={0.7}
+        onPress={onPlayPress}
+        style={styles.submissionContent}
+      >
+        <View style={styles.submissionInfo}>
+          <Text style={styles.campaignName}>{campaign?.brand ?? 'Unknown'}</Text>
+          <Text style={styles.urlText}>{truncateUrl(submission.url)}</Text>
+          <Text style={styles.dateText}>
+            {new Date(submission.submittedAt).toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric',
+            })}
+          </Text>
+        </View>
+        <View style={styles.playIcon}>
+          <Ionicons name="play-circle-outline" size={20} color="#00F5FF" />
+        </View>
+      </TouchableOpacity>
       <StatusChip status={submission.status} />
     </View>
   );
@@ -38,6 +50,15 @@ function SubmissionRow({ submission }: { submission: Submission }) {
 
 export default function SubmissionsScreen() {
   const { submissions } = useSubmissions();
+  const [videoModalVisible, setVideoModalVisible] = useState(false);
+  const [selectedVideoUrl, setSelectedVideoUrl] = useState('');
+  const [selectedCampaignBrand, setSelectedCampaignBrand] = useState('');
+
+  const handlePlayVideo = (url: string, brand: string) => {
+    setSelectedVideoUrl(url);
+    setSelectedCampaignBrand(brand);
+    setVideoModalVisible(true);
+  };
 
   if (submissions.length === 0) {
     return (
@@ -59,40 +80,52 @@ export default function SubmissionsScreen() {
   }, {});
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.content}
-      showsVerticalScrollIndicator={false}
-    >
-      <Text style={styles.summary}>
-        {submissions.length} submission{submissions.length !== 1 ? 's' : ''} across{' '}
-        {Object.keys(grouped).length} campaign{Object.keys(grouped).length !== 1 ? 's' : ''}
-      </Text>
+    <>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
+        <Text style={styles.summary}>
+          {submissions.length} submission{submissions.length !== 1 ? 's' : ''} across{' '}
+          {Object.keys(grouped).length} campaign{Object.keys(grouped).length !== 1 ? 's' : ''}
+        </Text>
 
-      {Object.entries(grouped).map(([campaignId, subs]) => {
-        const campaign = CAMPAIGNS.find((c) => c.id === campaignId);
-        return (
-          <View key={campaignId} style={styles.group}>
-            <View style={styles.groupHeader}>
-              <View style={styles.groupDot} />
-              <Text style={styles.groupTitle}>{campaign?.brand ?? campaignId}</Text>
-              <View style={styles.groupBadge}>
-                <Text style={styles.groupBadgeText}>{subs.length}</Text>
+        {Object.entries(grouped).map(([campaignId, subs]) => {
+          const campaign = CAMPAIGNS.find((c) => c.id === campaignId);
+          return (
+            <View key={campaignId} style={styles.group}>
+              <View style={styles.groupHeader}>
+                <View style={styles.groupDot} />
+                <Text style={styles.groupTitle}>{campaign?.brand ?? campaignId}</Text>
+                <View style={styles.groupBadge}>
+                  <Text style={styles.groupBadgeText}>{subs.length}</Text>
+                </View>
+              </View>
+
+              <View style={styles.groupCard}>
+                {subs.map((sub, idx) => (
+                  <View key={sub.id}>
+                    <SubmissionRow
+                      submission={sub}
+                      onPlayPress={() => handlePlayVideo(sub.url, campaign?.brand ?? 'Unknown')}
+                    />
+                    {idx < subs.length - 1 && <View style={styles.divider} />}
+                  </View>
+                ))}
               </View>
             </View>
+          );
+        })}
+      </ScrollView>
 
-            <View style={styles.groupCard}>
-              {subs.map((sub, idx) => (
-                <View key={sub.id}>
-                  <SubmissionRow submission={sub} />
-                  {idx < subs.length - 1 && <View style={styles.divider} />}
-                </View>
-              ))}
-            </View>
-          </View>
-        );
-      })}
-    </ScrollView>
+      <VideoPlayerModal
+        visible={videoModalVisible}
+        videoUrl={selectedVideoUrl}
+        title={`${selectedCampaignBrand} - Submission`}
+        onClose={() => setVideoModalVisible(false)}
+      />
+    </>
   );
 }
 
@@ -156,6 +189,20 @@ const styles = StyleSheet.create({
     padding: 14,
     gap: 12,
   },
+  submissionContent: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  playIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(0, 245, 255, 0.12)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   submissionInfo: {
     flex: 1,
     gap: 3,
@@ -180,6 +227,11 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: 'rgba(255,255,255,0.05)',
     marginHorizontal: 14,
+  },
+  submissionActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
   },
   empty: {
     flex: 1,

@@ -22,7 +22,7 @@ export default function CampaignsScreen() {
     return () => clearTimeout(t);
   }, []);
 
-  const activeCampaigns = CAMPAIGNS.length;
+  const activeCampaigns = new Set(submissions.map((s) => s.campaignId)).size;
   const pendingEarnings = submissions
     .filter((s) => s.status === 'pending')
     .reduce((sum, s) => {
