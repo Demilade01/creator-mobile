@@ -18,7 +18,7 @@ export default function CampaignDetailScreen() {
   const campaign = CAMPAIGNS.find((c) => c.id === id);
 
   const [videoModalVisible, setVideoModalVisible] = useState(false);
-  const [selectedVideoUrl, setSelectedVideoUrl] = useState('');
+  const [selectedVideoUrl, setSelectedVideoUrl] = useState<string | number>('');
 
   if (!campaign) {
     return (

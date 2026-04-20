@@ -18,8 +18,8 @@ export const CAMPAIGNS: Campaign[] = [
     ],
     exampleThumbnails: ['#1A1A2E', '#16213E'],
     exampleVideoUrls: [
-      'https://www.instagram.com/codewithdary/reel/DTUoyASAB5L/',
-      'https://www.instagram.com/reel/C1_Z1234567890/',
+      require('../../assets/videos/laravel.mp4'),
+      require('../../assets/videos/laravel.mp4'),
     ],
   },
   {
@@ -39,8 +39,8 @@ export const CAMPAIGNS: Campaign[] = [
     ],
     exampleThumbnails: ['#2D1B4E', '#4A1942'],
     exampleVideoUrls: [
-      'https://www.tiktok.com/@sephora/video/7245678901234567890',
-      'https://www.instagram.com/reel/C2_Z9876543210/',
+      require('../../assets/videos/laravel.mp4'),
+      require('../../assets/videos/laravel.mp4'),
     ],
   },
   {
@@ -60,8 +60,8 @@ export const CAMPAIGNS: Campaign[] = [
     ],
     exampleThumbnails: ['#0D2137', '#1A3A2A'],
     exampleVideoUrls: [
-      'https://www.tiktok.com/@spotify/video/7256789012345678901',
-      'https://www.instagram.com/reel/C3_Z1111111111/',
+      require('../../assets/videos/laravel.mp4'),
+      require('../../assets/videos/laravel.mp4'),
     ],
   },
   {
@@ -81,8 +81,8 @@ export const CAMPAIGNS: Campaign[] = [
     ],
     exampleThumbnails: ['#0A2A1A', '#1A2A0A'],
     exampleVideoUrls: [
-      'https://www.tiktok.com/@gopro/video/7267890123456789012',
-      'https://www.instagram.com/reel/C4_Z2222222222/',
+      require('../../assets/videos/laravel.mp4'),
+      require('../../assets/videos/laravel.mp4'),
     ],
   },
   {
@@ -102,8 +102,8 @@ export const CAMPAIGNS: Campaign[] = [
     ],
     exampleThumbnails: ['#1A2A0F', '#0F1A2A'],
     exampleVideoUrls: [
-      'https://www.tiktok.com/@hellofresh/video/7278901234567890123',
-      'https://www.instagram.com/reel/C5_Z3333333333/',
+      require('../../assets/videos/laravel.mp4'),
+      require('../../assets/videos/laravel.mp4'),
     ],
   },
 ];
